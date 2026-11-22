@@ -15,6 +15,16 @@ window.WESSUSHI = {
     { pieces: 10, price: 15 },
   ],
 
+  // Les zones de livraison et leur prix en DT. Ajoute, retire ou change un prix ici.
+  deliveryZones: [
+    { name: "Lac 1", price: 3 },
+    { name: "L'Aouina", price: 4 },
+    { name: "El Wahat", price: 6 },
+    { name: "Cité El Khadra", price: 4 },
+    { name: "Centre-ville", price: 7 },
+    { name: "Charguia 1 et 2", price: 5 },
+  ],
+
   // Les ingrédients que le client peut choisir (tous cochés au départ)
   ingredients: ["Crevette", "Avocat", "Fromage"],
 

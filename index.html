@@ -15,7 +15,7 @@
 <link rel="preload" href="assets/fonts/outfit.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/img/box-crispy.webp" as="image">
 <script>document.documentElement.classList.add('js')</script>
-<link rel="stylesheet" href="css/style.css?v=14">
+<link rel="stylesheet" href="css/style.css?v=15">
 </head>
 <body>
 <a class="skip" href="#commander">Aller à la commande</a>
@@ -102,7 +102,7 @@
     <li class="fact">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
       <p class="fact__big">Retrait</p>
-      <p class="fact__small">Ou livraison zones proches</p>
+      <p class="fact__small" id="factDelivery">Ou livraison dans les zones proches</p>
     </li>
   </ul>
 </section>
@@ -147,30 +147,36 @@
       <p class="hint" id="cartEmpty" hidden>Ta commande est vide. Compose une box et appuie sur Ajouter.</p>
     </div>
 
-    <div class="total" id="total" aria-live="polite">
-      <div><p class="total__label">Total</p><p class="total__detail" id="totalDetail"></p></div>
-      <p class="total__price" id="totalPrice"></p>
-    </div>
     <p class="hint" id="splitHint" hidden>Plus de 10 pièces : chaque box est fermée à part.</p>
 
     <fieldset class="field">
       <legend class="label">Comment tu la récupères ?</legend>
       <div class="seg">
-        <label><input type="radio" name="mode" id="modePickup" value="Retrait" checked><span>Je viens la chercher</span></label>
-        <label><input type="radio" name="mode" id="modeDelivery" value="Livraison"><span>Livraison<small>zones proches</small></span></label>
+        <label><input type="radio" name="mode" id="modePickup" value="Retrait" checked><span>Je viens la chercher<small>gratuit</small></span></label>
+        <label><input type="radio" name="mode" id="modeDelivery" value="Livraison"><span>Livraison<small id="deliveryFrom">selon ta zone</small></span></label>
       </div>
     </fieldset>
+
+    <fieldset class="field" id="zoneField" hidden>
+      <legend class="label">Ta zone</legend>
+      <div class="seg seg--zones" id="zones"></div>
+      <p class="err" id="zoneErr" hidden>Choisis ta zone de livraison.</p>
+    </fieldset>
+
+    <div class="field" id="addrField" hidden>
+      <label class="label" for="orderAddr">Adresse de livraison</label>
+      <input class="input" id="orderAddr" type="text" autocomplete="street-address" placeholder="Rue, immeuble, étage">
+    </div>
+
+    <div class="total" id="total" aria-live="polite">
+      <div><p class="total__label">Total</p><p class="total__detail" id="totalDetail"></p></div>
+      <p class="total__price" id="totalPrice"></p>
+    </div>
 
     <div class="field">
       <label class="label" for="orderName">Ton prénom</label>
       <input class="input" id="orderName" type="text" autocomplete="given-name" placeholder="Ton prénom">
       <p class="err" id="orderErr" hidden>Écris ton prénom pour qu'on sache à qui préparer la box.</p>
-    </div>
-
-    <div class="field" id="addrField" hidden>
-      <label class="label" for="orderAddr">Adresse de livraison</label>
-      <input class="input" id="orderAddr" type="text" autocomplete="street-address" placeholder="Rue, immeuble, quartier">
-      <p class="hint">Livraison seulement dans les zones proches.</p>
     </div>
 
     <div class="field">
@@ -288,9 +294,9 @@
 
 <a class="stickybar" id="stickybar" href="#commander"><span>Commander · dès 12 DT</span></a>
 
-<script src="vendor/gsap.min.js?v=14"></script>
-<script src="vendor/ScrollTrigger.min.js?v=14"></script>
-<script src="js/config.js?v=14"></script>
-<script src="js/main.js?v=14"></script>
+<script src="vendor/gsap.min.js?v=15"></script>
+<script src="vendor/ScrollTrigger.min.js?v=15"></script>
+<script src="js/config.js?v=15"></script>
+<script src="js/main.js?v=15"></script>
 </body>
 </html>

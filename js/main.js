@@ -63,11 +63,31 @@
     const fill = b => b.ings.join(' · ');
     const cart = [{ ...draft(), qty: 1 }];
 
-    const totals = () => ({
-      boxes: cart.reduce((a, l) => a + l.qty, 0),
-      pieces: cart.reduce((a, l) => a + l.qty * BOXES[l.size].pieces, 0),
-      price: cart.reduce((a, l) => a + l.qty * BOXES[l.size].price, 0),
-    });
+    // delivery: each zone has its own price, picked by the customer
+    const ZONES = CFG.deliveryZones || [];
+    $('#zones').innerHTML = ZONES.map((z, i) =>
+      `<label><input type="radio" name="zone" id="zone-${i}" value="${i}"><span>${z.name.replace(/</g, '&lt;')}<small>${dt(z.price)}</small></span></label>`).join('');
+    if (ZONES.length) {
+      const from = `dès ${dt(Math.min(...ZONES.map(z => z.price)))}`;
+      $('#deliveryFrom').textContent = from;
+      $('#factDelivery').textContent = `Ou livraison ${from}`;
+    }
+    const delivering = () => form.elements.mode.value === 'Livraison';
+    const zone = () => {
+      const c = $('input[name="zone"]:checked');
+      return delivering() && c ? ZONES[+c.value] : null;
+    };
+
+    const totals = () => {
+      const boxes = cart.reduce((a, l) => a + l.qty, 0);
+      const food = cart.reduce((a, l) => a + l.qty * BOXES[l.size].price, 0);
+      const fee = zone() ? zone().price : 0;
+      return {
+        boxes, food, fee,
+        pieces: cart.reduce((a, l) => a + l.qty * BOXES[l.size].pieces, 0),
+        price: food + fee,
+      };
+    };
     const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
     const renderCart = () => {
       $('#cart').innerHTML = cart.map((l, i) => `
@@ -87,8 +107,10 @@
       const mode = form.elements.mode.value;
       const lines = ['Bonjour WesSushi ! Je voudrais commander :'];
       cart.forEach(l => lines.push(`• ${l.qty} × ${label(l)} : ${fill(l)} (${dt(l.qty * BOXES[l.size].price)})`));
-      lines.push(`Total : ${t.boxes} box, ${t.pieces} pièces, ${dt(t.price)}`);
-      lines.push(`• ${mode === 'Livraison' ? 'En livraison' : 'Je viens la chercher'}`);
+      const z = zone();
+      if (mode === 'Livraison') lines.push(`• Livraison${z ? ` ${z.name} (${dt(z.price)})` : ''}`);
+      else lines.push('• Je viens la chercher');
+      lines.push(`Total : ${t.boxes} box, ${t.pieces} pièces, ${dt(t.price)}${t.fee ? ` (dont ${dt(t.fee)} de livraison)` : ''}`);
       lines.push(`• Prénom : ${name.value.trim()}`);
       const addr = $('#orderAddr').value.trim();
       const note = $('#orderNote').value.trim();
@@ -102,11 +124,15 @@
       $('#addBox').disabled = !d.ings.length;
       $('#ingErr').hidden = d.ings.length > 0;
       const t = totals();
-      $('#totalDetail').textContent = t.boxes ? `${t.boxes} box · ${t.pieces} pièces` : 'Aucune box';
+      const z = zone();
+      $('#totalDetail').textContent = !t.boxes ? 'Aucune box'
+        : `${t.boxes} box · ${t.pieces} pièces${z ? ` + livraison ${z.name} ${dt(z.price)}` : delivering() ? ' + livraison (choisis ta zone)' : ''}`;
       $('#totalPrice').textContent = dt(t.price);
       $('#splitHint').hidden = t.boxes < 2;
       if (t.boxes) $('#emptyErr').hidden = true;
-      $('#addrField').hidden = form.elements.mode.value !== 'Livraison';
+      $('#zoneField').hidden = !delivering();
+      $('#addrField').hidden = !delivering();
+      if (z) $('#zoneErr').hidden = true;
       send.href = waLink(message());
     };
     $('#addBox').addEventListener('click', () => {
@@ -137,6 +163,12 @@
       if (!totals().boxes) {
         e.preventDefault();
         $('#emptyErr').hidden = false;
+        return;
+      }
+      if (delivering() && !zone()) {
+        e.preventDefault();
+        $('#zoneErr').hidden = false;
+        $('#zoneField').scrollIntoView({ block: 'center', behavior: RM ? 'auto' : 'smooth' });
         return;
       }
       if (name.value.trim()) return;
