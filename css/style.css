@@ -18,8 +18,11 @@
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;background:var(--navy-deep)}
-html:not(.lenis-smooth){scroll-behavior:smooth}
-@media (prefers-reduced-motion:reduce){html:not(.lenis-smooth){scroll-behavior:auto}}
+/* the smooth-scroll script moves the page itself: the browser's own smooth scrolling must be off, or Chrome stutters */
+html:not(.lenis){scroll-behavior:smooth}
+html.lenis,html.lenis body{height:auto}
+html.lenis{scroll-behavior:auto!important}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 body{margin:0;background:var(--mist);color:var(--navy);font:500 clamp(16px,1.1vw,18px)/1.55 var(--body);overflow-x:clip;-webkit-font-smoothing:antialiased}
 img{display:block;max-width:100%;height:auto}
 a{color:inherit}
