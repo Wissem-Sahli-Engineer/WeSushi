@@ -47,7 +47,13 @@ export function createBox3D(container, { base = 'assets/img/box-3d/', pieces = 8
   const loader = new THREE.TextureLoader();
   const tex = (name, mirror) => {
     pending++;
-    const t = loader.load(`${base}${name}.webp`, () => { if (--pending === 0) onReady?.(); });
+    // once every photo has arrived, draw one frame so it is sent to the GPU now, not mid-scroll
+    const t = loader.load(`${base}${name}.webp`, () => {
+      if (--pending) return;
+      layout(current);
+      renderer.render(scene, camera);
+      onReady?.();
+    });
     t.colorSpace = THREE.SRGBColorSpace;
     t.anisotropy = renderer.capabilities.getMaxAnisotropy();
     if (mirror) t.wrapS = t.wrapT = THREE.MirroredRepeatWrapping;

@@ -18,10 +18,6 @@
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;background:var(--navy-deep)}
-/* the smooth-scroll script moves the page itself: the browser's own smooth scrolling must be off, or Chrome stutters */
-html:not(.lenis){scroll-behavior:smooth}
-html.lenis,html.lenis body{height:auto}
-html.lenis{scroll-behavior:auto!important}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 body{margin:0;background:var(--mist);color:var(--navy);font:500 clamp(16px,1.1vw,18px)/1.55 var(--body);overflow-x:clip;-webkit-font-smoothing:antialiased}
 img{display:block;max-width:100%;height:auto}
@@ -110,7 +106,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .tag i{width:9px;height:9px;border-radius:50%;background:var(--sun)}
 .hero__line{font:600 clamp(18px,1.5vw,22px)/1.25 var(--display)}
 .waves{position:absolute;left:0;right:0;bottom:-1px;height:var(--wave-h);overflow:hidden;z-index:2;pointer-events:none}
-.waves svg{display:block;width:200%;height:100%}
+.waves svg{display:block;width:200%;height:100%;will-change:transform}
 .w-fill{fill:var(--navy)}
 .w-line{fill:none;stroke-width:6;vector-effect:non-scaling-stroke}
 .w-line--1{stroke:var(--paper)}

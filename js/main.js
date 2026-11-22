@@ -215,7 +215,6 @@
       burger.setAttribute('aria-expanded', open);
       $('.sr', burger).textContent = open ? 'Fermer le menu' : 'Ouvrir le menu';
       document.documentElement.style.overflow = open ? 'hidden' : '';
-      if (window.__lenis) open ? window.__lenis.stop() : window.__lenis.start();
       $('#nav').classList.toggle('is-solid', open || scrollY > innerHeight * .7);
     };
     burger.addEventListener('click', () => set(menu.hidden));
@@ -235,22 +234,14 @@
   gsap.config({ nullTargetWarn: false });
   ScrollTrigger.config({ ignoreMobileResize: true });
 
-  let lenis = null;
-  if (!RM && window.Lenis) {
-    lenis = new Lenis({ lerp: .11 });
-    window.__lenis = lenis;
-    lenis.on('scroll', ScrollTrigger.update);
-    gsap.ticker.add(t => lenis.raf(t * 1000));
-    gsap.ticker.lagSmoothing(0);
-  }
+  // the browser's own scrolling: smoothest in every browser, and links glide via CSS scroll-behavior
   $$('a[href^="#"]').forEach(a => a.addEventListener('click', e => {
     const id = a.getAttribute('href');
     if (id.length < 2) return;
     const t = $(id);
     if (!t) return;
     e.preventDefault();
-    if (lenis) lenis.scrollTo(t, { offset: id === '#top' ? 0 : -8, duration: 1.2 });
-    else t.scrollIntoView();
+    window.scrollTo({ top: id === '#top' ? 0 : t.getBoundingClientRect().top + scrollY - 8, behavior: RM ? 'auto' : 'smooth' });
   }));
 
   /* ---------- hero ---------- */
@@ -326,16 +317,22 @@
     const ex = $('.explode');
     ex.classList.add('is-scrub');
     let box = null, prog = 0, seen = false;
-    ScrollTrigger.create({
-      trigger: ex, start: 'top 180%', once: true,
-      onEnter: () => import('./box3d.js?v=7')
+    // build the 3D scene while the page is idle, not in the middle of a scroll
+    let started = false;
+    const load3d = () => {
+      if (started) return;
+      started = true;
+      import('./box3d.js?v=9')
         .then(m => {
           box = m.createBox3D($('#exScene'), { onReady: () => ex.classList.add('is-3d') });
           box.setProgress(prog);
           box.setVisible(seen);
         })
-        .catch(() => { ex.classList.remove('is-scrub'); setRow(2); }),
-    });
+        .catch(() => { ex.classList.remove('is-scrub'); setRow(2); });
+    };
+    const idle = window.requestIdleCallback || (f => setTimeout(f, 1500));
+    addEventListener('load', () => idle(load3d, { timeout: 3000 }));
+    ScrollTrigger.create({ trigger: ex, start: 'top 250%', once: true, onEnter: load3d });
     ScrollTrigger.create({
       trigger: ex, start: 'top top', end: 'bottom bottom',
       onUpdate(st) {
@@ -375,7 +372,6 @@
       .to([pieceA, pieceB], { scale: 1, autoAlpha: 1, rotation: 0, duration: .7, stagger: .05, ease: 'back.out(1.5)' }, .4)
       .to('.hero__copy > *, .hero__jp', { autoAlpha: 1, y: 0, duration: .45, stagger: .05, ease: 'power3.out' }, .5);
   };
-  if (lenis) window.scrollTo(0, 0);
   let done = 0;
   let fired = false;
   const started = performance.now();
