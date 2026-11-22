@@ -11,7 +11,6 @@
 
   /* ---------- prices everywhere come from config.js ---------- */
   const fillPrices = () => {
-    $('#heroPrices').innerHTML = BOXES.map(b => `<span class="price-chip">${b.pieces} pièces <b>${dt(b.price)}</b></span>`).join('');
     $('#stickybar span').textContent = `Commander · dès ${dt(Math.min(...BOXES.map(b => b.price)))}`;
   };
 
