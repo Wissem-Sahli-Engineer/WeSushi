@@ -11,23 +11,23 @@
 <meta property="og:description" content="Box de 8 pièces à 12 DT ou de 10 pièces à 15 DT, avec sauce soja sucrée.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="assets/img/partage.jpg">
-<link rel="icon" type="image/png" href="assets/img/logo-embleme.png">
+<link rel="icon" type="image/png" href="assets/img/logo-embleme.png?v=2">
 <link rel="preload" href="assets/fonts/outfit.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/img/box-crispy.webp" as="image">
 <script>document.documentElement.classList.add('js')</script>
-<link rel="stylesheet" href="css/style.css?v=5">
+<link rel="stylesheet" href="css/style.css?v=10">
 </head>
 <body>
 <a class="skip" href="#commander">Aller à la commande</a>
 
 <div class="loader" aria-hidden="true">
-  <img class="loader__logo" src="assets/img/logo-embleme.png" alt="" width="256" height="256">
+  <img class="loader__logo" src="assets/img/logo-embleme.png?v=2" alt="" width="256" height="256">
   <p class="wordmark"><b>Wes</b>Sushi</p>
   <div class="loader__dots"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 </div>
 
 <header class="nav" id="nav">
-  <a class="nav__logo" href="#top"><img src="assets/img/logo-embleme.png" alt="" width="256" height="256"><span class="wordmark"><b>Wes</b>Sushi</span></a>
+  <a class="nav__logo" href="#top"><img src="assets/img/logo-embleme.png?v=2" alt="" width="256" height="256"><span class="wordmark"><b>Wes</b>Sushi</span></a>
   <nav class="nav__links" aria-label="Navigation principale">
     <a href="#commander">Les box</a>
     <a href="#box">Dans la box</a>
@@ -67,7 +67,7 @@
   <div class="hero__foot">
     <div class="hero__copy">
       <p class="tag"><i></i>Disponible maintenant</p>
-      <p class="hero__line">Box de 8 ou 10 pièces croustillantes</p>
+      <p class="hero__line">Box de 8 ou 10 pièces, à composer</p>
       <div class="hero__prices" id="heroPrices"></div>
       <a class="btn btn--sun" href="#commander"><span>Commander</span></a>
     </div>
@@ -87,13 +87,13 @@
   <ul class="facts__list" id="facts">
     <li class="fact">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12V4h8l10 10-8 8L3 12z"/><circle cx="7.5" cy="8.5" r="1.5"/></svg>
-      <p class="fact__big"><span class="count" data-to="12">12</span> DT</p>
-      <p class="fact__small">Box de 8 pièces</p>
+      <p class="fact__big">Petit prix</p>
+      <p class="fact__small">La même qualité qu'au resto</p>
     </li>
     <li class="fact">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12V4h8l10 10-8 8L3 12z"/><circle cx="7.5" cy="8.5" r="1.5"/></svg>
-      <p class="fact__big"><span class="count" data-to="15">15</span> DT</p>
-      <p class="fact__small">Box de 10 pièces</p>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 14.5c1 1.6 2.4 2.4 4 2.4s3-.8 4-2.4"/><path d="M8.5 9.5h.01M15.5 9.5h.01" stroke-width="2.6"/></svg>
+      <p class="fact__big">Ventre plein</p>
+      <p class="fact__small">Tu sors rassasié</p>
     </li>
     <li class="fact">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 10h14l-1.5 8.5a2 2 0 0 1-2 1.5h-7a2 2 0 0 1-2-1.5L5 10z"/><path d="M9 6c0-1.5 1-2 1-3M13 6c0-1.5 1-2 1-3"/></svg>
@@ -112,16 +112,41 @@
 <section class="order" id="commander">
   <div class="order__head">
     <p class="eyebrow">Commander</p>
-    <h2 class="h2">Choisis ta box</h2>
+    <h2 class="h2">Compose ta box</h2>
   </div>
 
   <figure class="order__img"><img src="assets/img/commande-reelle.webp" alt="Une vraie commande WesSushi : des pièces crispy dans un bol kraft, autour d'une coupelle de sauce soja sucrée" width="1152" height="1300" loading="lazy"><figcaption>Une vraie commande WesSushi</figcaption></figure>
 
   <form class="form" id="orderForm" novalidate>
-    <fieldset class="field">
-      <legend class="label">Tes box</legend>
-      <div class="boxes" id="boxes"></div>
-    </fieldset>
+    <div class="composer" id="composer">
+      <fieldset class="field">
+        <legend class="label">1. Taille</legend>
+        <div class="seg" id="optSize"></div>
+      </fieldset>
+      <fieldset class="field">
+        <legend class="label">2. Style</legend>
+        <div class="seg">
+          <label><input type="radio" name="boxStyle" id="styleCrispy" value="Crispy" checked><span>Crispy<small>pané à la chapelure</small></span></label>
+          <label><input type="radio" name="boxStyle" id="styleClassic" value="Classique"><span>Classique<small>sans chapelure</small></span></label>
+        </div>
+      </fieldset>
+      <fieldset class="field">
+        <legend class="label">3. Ingrédients</legend>
+        <div class="picks" id="optIng"></div>
+        <p class="hint">Fromage : fraidoux ou gruyère, selon disponibilité.</p>
+        <p class="err" id="ingErr" hidden>Choisis au moins un ingrédient.</p>
+      </fieldset>
+      <div class="composer__foot">
+        <p class="composer__sum" id="composeSum" aria-live="polite"></p>
+        <button class="btn btn--navy" type="button" id="addBox"><span>Ajouter</span></button>
+      </div>
+    </div>
+
+    <div class="field">
+      <p class="label">Ta commande</p>
+      <ul class="cart" id="cart"></ul>
+      <p class="hint" id="cartEmpty" hidden>Ta commande est vide. Compose une box et appuie sur Ajouter.</p>
+    </div>
 
     <div class="total" id="total" aria-live="polite">
       <div><p class="total__label">Total</p><p class="total__detail" id="totalDetail"></p></div>
@@ -160,7 +185,7 @@
     </ul>
 
     <a class="btn btn--sun btn--wide" id="orderSend" href="#" target="_blank" rel="noopener"><span>Envoyer sur WhatsApp</span></a>
-    <p class="err" id="emptyErr" hidden>Ajoute au moins une box.</p>
+    <p class="err" id="emptyErr" hidden>Ajoute au moins une box à ta commande.</p>
   </form>
 </section>
 
@@ -172,7 +197,7 @@
       <h2 class="h2">Tout ce que tu reçois</h2>
       <ol class="legend" id="legend">
         <li><b>Sauce soja sucrée</b><span>En coupelle, à part</span></li>
-        <li><b>8 ou 10 pièces crispy</b><span>Crevette · avocat · fromage · chapelure</span></li>
+        <li><b>8 ou 10 pièces</b><span>Crispy ou classique · crevette · avocat · fromage</span></li>
         <li><b>La box kraft</b><span>Baguettes non fournies</span></li>
       </ol>
     </div>
@@ -256,7 +281,7 @@
 </main>
 
 <footer class="foot">
-  <img class="foot__logo" src="assets/img/logo-embleme.png" alt="" width="256" height="256" loading="lazy">
+  <img class="foot__logo" src="assets/img/logo-embleme.png?v=2" alt="" width="256" height="256" loading="lazy">
   <p class="foot__word wordmark" aria-hidden="true"><b>Wes</b>Sushi</p>
   <p class="foot__tag">Petit prix · Ventre plein · Bon goût</p>
   <p class="foot__copy">© <span id="year">2026</span> WesSushi</p>
@@ -264,10 +289,10 @@
 
 <a class="stickybar" id="stickybar" href="#commander"><span>Commander · dès 12 DT</span></a>
 
-<script src="vendor/gsap.min.js?v=5"></script>
-<script src="vendor/ScrollTrigger.min.js?v=5"></script>
-<script src="vendor/lenis.min.js?v=5"></script>
-<script src="js/config.js?v=5"></script>
-<script src="js/main.js?v=5"></script>
+<script src="vendor/gsap.min.js?v=10"></script>
+<script src="vendor/ScrollTrigger.min.js?v=10"></script>
+<script src="vendor/lenis.min.js?v=10"></script>
+<script src="js/config.js?v=10"></script>
+<script src="js/main.js?v=10"></script>
 </body>
 </html>

@@ -4,7 +4,7 @@
 ------------------------------------------------------------------- */
 window.WESSUSHI = {
   // Numéro au format international, sans + ni espaces. Exemple : "21612345678"
-  whatsapp: "21652525313",
+  whatsapp: "21652515313",
 
   // Ton compte Instagram, sans le @. Exemple : "wessushi"
   instagram: "",
@@ -15,7 +15,10 @@ window.WESSUSHI = {
     { pieces: 10, price: 15 },
   ],
 
-  // Nombre maximum de box d'une même taille par commande
+  // Les ingrédients que le client peut choisir (tous cochés au départ)
+  ingredients: ["Crevette", "Avocat", "Fromage"],
+
+  // Nombre maximum de box identiques par commande
   maxPerBox: 10,
 
   // Ce que les clients voient sur le site

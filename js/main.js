@@ -12,13 +12,6 @@
   /* ---------- prices everywhere come from config.js ---------- */
   const fillPrices = () => {
     $('#heroPrices').innerHTML = BOXES.map(b => `<span class="price-chip">${b.pieces} pièces <b>${dt(b.price)}</b></span>`).join('');
-    const facts = $$('.fact');
-    BOXES.slice(0, 2).forEach((b, i) => {
-      const n = $('.count', facts[i]);
-      n.dataset.to = b.price;
-      n.textContent = b.price;
-      $('.fact__small', facts[i]).textContent = `Box de ${b.pieces} pièces`;
-    });
     $('#stickybar span').textContent = `Commander · dès ${dt(Math.min(...BOXES.map(b => b.price)))}`;
   };
 
@@ -48,32 +41,53 @@
     $('#year').textContent = new Date().getFullYear();
   };
 
-  /* ---------- order: several box sizes, each with its own quantity ---------- */
+  /* ---------- order: compose a box (size, style, ingredients), then add it to the order ---------- */
   const initOrder = () => {
     const MAX = CFG.maxPerBox || 10;
-    const qty = BOXES.map((_, i) => (i === 0 ? 1 : 0));
+    const INGS = CFG.ingredients && CFG.ingredients.length ? CFG.ingredients : ['Crevette', 'Avocat', 'Fromage'];
     const form = $('#orderForm');
     const send = $('#orderSend');
     const name = $('#orderName');
-    $('#boxes').innerHTML = BOXES.map((b, i) => `
-      <div class="boxopt" data-i="${i}">
-        <div><p class="boxopt__name">${b.pieces} pièces</p><p class="boxopt__price">${dt(b.price)}</p></div>
-        <div class="qty" role="group" aria-label="Box de ${b.pieces} pièces">
-          <button type="button" data-d="-1" aria-label="Retirer une box de ${b.pieces}">−</button>
-          <output aria-live="polite">0</output>
-          <button type="button" data-d="1" aria-label="Ajouter une box de ${b.pieces}">+</button>
-        </div>
-      </div>`).join('');
-    const totals = () => ({
-      boxes: qty.reduce((a, n) => a + n, 0),
-      pieces: qty.reduce((a, n, i) => a + n * BOXES[i].pieces, 0),
-      price: qty.reduce((a, n, i) => a + n * BOXES[i].price, 0),
+    $('#optSize').innerHTML = BOXES.map((b, i) =>
+      `<label><input type="radio" name="boxSize" id="size-${i}" value="${i}"${i ? '' : ' checked'}><span>${b.pieces} pièces<small>${dt(b.price)}</small></span></label>`).join('');
+    $('#optIng').innerHTML = INGS.map((n, i) =>
+      `<label class="pick"><input type="checkbox" name="boxIng" id="ing-${i}" value="${n}" checked><span>${n}</span></label>`).join('');
+
+    // the box being composed
+    const draft = () => ({
+      size: +form.elements.boxSize.value,
+      style: form.elements.boxStyle.value,
+      ings: $$('input[name="boxIng"]:checked').map(c => c.value),
     });
+    const key = b => `${b.size}|${b.style}|${b.ings.join('+')}`;
+    const label = b => `Box ${BOXES[b.size].pieces} pièces · ${b.style}`;
+    const fill = b => b.ings.join(' · ');
+    const cart = [{ ...draft(), qty: 1 }];
+
+    const totals = () => ({
+      boxes: cart.reduce((a, l) => a + l.qty, 0),
+      pieces: cart.reduce((a, l) => a + l.qty * BOXES[l.size].pieces, 0),
+      price: cart.reduce((a, l) => a + l.qty * BOXES[l.size].price, 0),
+    });
+    const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const renderCart = () => {
+      $('#cart').innerHTML = cart.map((l, i) => `
+        <li class="line" data-i="${i}">
+          <div class="line__text"><p class="line__name">${esc(label(l))}</p><p class="line__fill">${esc(fill(l))}</p></div>
+          <div class="qty" role="group" aria-label="${esc(label(l))}">
+            <button type="button" data-d="-1" aria-label="Retirer une box">−</button>
+            <output>${l.qty}</output>
+            <button type="button" data-d="1" aria-label="Ajouter une box"${l.qty >= MAX ? ' disabled' : ''}>+</button>
+          </div>
+          <p class="line__price">${dt(l.qty * BOXES[l.size].price)}</p>
+        </li>`).join('');
+      $('#cartEmpty').hidden = cart.length > 0;
+    };
     const message = () => {
       const t = totals();
       const mode = form.elements.mode.value;
       const lines = ['Bonjour WesSushi ! Je voudrais commander :'];
-      qty.forEach((n, i) => { if (n) lines.push(`• ${n} box de ${BOXES[i].pieces} pièces (${dt(n * BOXES[i].price)})`); });
+      cart.forEach(l => lines.push(`• ${l.qty} × ${label(l)} : ${fill(l)} (${dt(l.qty * BOXES[l.size].price)})`));
       lines.push(`Total : ${t.boxes} box, ${t.pieces} pièces, ${dt(t.price)}`);
       lines.push(`• ${mode === 'Livraison' ? 'En livraison' : 'Je viens la chercher'}`);
       lines.push(`• Prénom : ${name.value.trim()}`);
@@ -84,12 +98,10 @@
       return lines.join('\n');
     };
     const sync = () => {
-      $$('.boxopt').forEach((el, i) => {
-        $('output', el).textContent = qty[i];
-        el.classList.toggle('is-on', qty[i] > 0);
-        $('[data-d="-1"]', el).disabled = qty[i] <= 0;
-        $('[data-d="1"]', el).disabled = qty[i] >= MAX;
-      });
+      const d = draft();
+      $('#composeSum').textContent = d.ings.length ? `${label(d)} · ${fill(d)}` : 'Choisis au moins un ingrédient';
+      $('#addBox').disabled = !d.ings.length;
+      $('#ingErr').hidden = d.ings.length > 0;
       const t = totals();
       $('#totalDetail').textContent = t.boxes ? `${t.boxes} box · ${t.pieces} pièces` : 'Aucune box';
       $('#totalPrice').textContent = dt(t.price);
@@ -98,13 +110,28 @@
       $('#addrField').hidden = form.elements.mode.value !== 'Livraison';
       send.href = waLink(message());
     };
-    $('#boxes').addEventListener('click', e => {
+    $('#addBox').addEventListener('click', () => {
+      const d = draft();
+      if (!d.ings.length) return;
+      const same = cart.find(l => key(l) === key(d));
+      if (same) same.qty = Math.min(MAX, same.qty + 1);
+      else cart.push({ ...d, qty: 1 });
+      renderCart();
+      sync();
+      const i = cart.indexOf(same || cart[cart.length - 1]);
+      const li = $(`.line[data-i="${i}"]`);
+      if (li && window.gsap) gsap.fromTo(li, { backgroundColor: '#FCE3DD' }, { backgroundColor: 'rgba(252,227,221,0)', duration: 1.2 });
+    });
+    $('#cart').addEventListener('click', e => {
       const b = e.target.closest('button[data-d]');
       if (!b) return;
-      const i = +b.closest('.boxopt').dataset.i;
-      qty[i] = Math.max(0, Math.min(MAX, qty[i] + +b.dataset.d));
+      const i = +b.closest('.line').dataset.i;
+      cart[i].qty = Math.min(MAX, cart[i].qty + +b.dataset.d);
+      if (cart[i].qty <= 0) cart.splice(i, 1);
+      renderCart();
       sync();
     });
+    renderCart();
     form.addEventListener('input', () => { if (name.value.trim()) $('#orderErr').hidden = true; sync(); });
     form.addEventListener('submit', e => e.preventDefault());
     send.addEventListener('click', e => {
@@ -287,13 +314,9 @@
   ScrollTrigger.create({ trigger: hero, start: 'bottom 60%', endTrigger: '#avis', end: 'top 90%', onToggle: t => { sb.past = t.isActive; stickySync(); } });
   ScrollTrigger.create({ trigger: '#commander', start: 'top 80%', end: 'bottom 40%', onToggle: t => { sb.inOrder = t.isActive; stickySync(); } });
 
-  /* ---------- essentials: tiles rise, prices count up ---------- */
+  /* ---------- essentials: tiles rise ---------- */
   if (!RM) {
     gsap.from('.fact', { y: 50, autoAlpha: 0, duration: .8, stagger: .08, ease: 'power3.out', clearProps: 'transform,opacity,visibility', scrollTrigger: { trigger: '#facts', start: 'top 88%', once: true } });
-    $$('.count').forEach(n => {
-      const o = { v: 0 };
-      gsap.to(o, { v: +n.dataset.to, duration: 1.1, ease: 'power2.out', onUpdate: () => { n.textContent = Math.round(o.v); }, scrollTrigger: { trigger: '#facts', start: 'top 88%', once: true } });
-    });
   }
 
   /* ---------- the box in 3D: it opens as you scroll ---------- */
@@ -329,7 +352,7 @@
 
   /* ---------- reveals ---------- */
   if (!RM) {
-    $$('.order__head, .boxes, .total, .about__photo, .about__text, .kitchen li, .reviews__head, .review-form, .biglink, .map').forEach(el => {
+    $$('.order__head, .composer, .about__photo, .about__text, .kitchen li, .reviews__head, .review-form, .biglink, .map').forEach(el => {
       gsap.from(el, { y: 36, autoAlpha: 0, duration: .9, ease: 'power3.out', clearProps: 'transform,opacity,visibility', scrollTrigger: { trigger: el, start: 'top 92%', once: true } });
     });
     gsap.from('.foot__logo', { rotation: -120, scale: .6, ease: 'none', scrollTrigger: { trigger: '.foot', start: 'top bottom', end: 'center bottom', scrub: true } });
