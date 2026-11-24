@@ -7,7 +7,7 @@ window.WESSUSHI = {
   whatsapp: "21652515313",
 
   // Ton compte Instagram, sans le @. Exemple : "wessushi"
-  instagram: "",
+  instagram: "wessushi",
 
   // Les box en vente : nombre de pièces et prix en DT
   boxes: [
@@ -43,7 +43,12 @@ window.WESSUSHI = {
   // La position utilisée pour afficher la carte
   mapQuery: "36.838164,10.237533",
 
-  // Les vrais avis de tes clients. Ajoute-les ici quand tu les reçois :
+  // Clé Web3Forms : les avis laissés sur le site arrivent par e-mail.
+  // Crée-la gratuitement sur https://web3forms.com avec ton adresse e-mail, puis colle-la ici.
+  reviewsKey: "588bd37f-ebf0-4264-9712-5a4c79fa1b9d",
+
+  // Les avis publiés sur le site. Chaque e-mail d'avis contient une ligne toute prête :
+  // copie-la ici pour publier l'avis, ou ignore l'e-mail pour ne pas le publier.
   // { name: "Prénom", stars: 5, text: "Ce que la personne a écrit." },
   reviews: [
   ],

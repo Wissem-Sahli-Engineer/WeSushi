@@ -15,7 +15,7 @@
 <link rel="preload" href="assets/fonts/outfit.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/img/box-crispy.webp" as="image">
 <script>document.documentElement.classList.add('js')</script>
-<link rel="stylesheet" href="css/style.css?v=15">
+<link rel="stylesheet" href="css/style.css?v=17">
 </head>
 <body>
 <a class="skip" href="#commander">Aller à la commande</a>
@@ -256,7 +256,11 @@
       <textarea class="input" id="revText" rows="3" placeholder="C'était comment ?"></textarea>
       <p class="err" id="revErr" hidden>Écris ton prénom et ton avis avant d'envoyer.</p>
     </div>
-    <a class="btn btn--navy btn--wide" id="revSend" href="#" target="_blank" rel="noopener"><span>Envoyer mon avis sur WhatsApp</span></a>
+    <input class="sr" type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <button class="btn btn--navy btn--wide" type="submit" id="revSend"><span>Envoyer mon avis</span></button>
+    <p class="hint hint--center">On lit chaque avis avant de le publier ici.</p>
+    <p class="err" id="revFail" hidden role="alert"></p>
+    <p class="ok" id="revOk" hidden role="status">Merci ! Ton avis est bien arrivé. Il apparaîtra ici une fois publié.</p>
   </form>
 </section>
 
@@ -294,9 +298,9 @@
 
 <a class="stickybar" id="stickybar" href="#commander"><span>Commander · dès 12 DT</span></a>
 
-<script src="vendor/gsap.min.js?v=15"></script>
-<script src="vendor/ScrollTrigger.min.js?v=15"></script>
-<script src="js/config.js?v=15"></script>
-<script src="js/main.js?v=15"></script>
+<script src="vendor/gsap.min.js?v=17"></script>
+<script src="vendor/ScrollTrigger.min.js?v=17"></script>
+<script src="js/config.js?v=17"></script>
+<script src="js/main.js?v=17"></script>
 </body>
 </html>

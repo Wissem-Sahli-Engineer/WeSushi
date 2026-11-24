@@ -180,17 +180,18 @@
   };
 
   /* ---------- reviews ---------- */
+  // Reviews are emailed to the owner through Web3Forms. Nothing appears on the site
+  // until the owner copies the review into `reviews` in config.js.
   const initReviews = () => {
-    const KEY = 'wessushi-my-review';
     const wall = $('#reviewsWall');
     const form = $('#reviewForm');
     const send = $('#revSend');
     const err = $('#revErr');
+    const fail = $('#revFail');
+    const okMsg = $('#revOk');
     const name = $('#revName');
     const text = $('#revText');
-    const read = () => { try { return JSON.parse(localStorage.getItem(KEY)); } catch { return null; } };
-    const write = v => { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch { /* private mode */ } };
-    const card = (r, own) => {
+    const card = r => {
       const el = document.createElement('article');
       el.className = 'rev';
       const stars = document.createElement('p');
@@ -203,40 +204,62 @@
       who.className = 'rev__name';
       who.textContent = r.name;
       el.append(stars, body, who);
-      if (own) {
-        const tag = document.createElement('p');
-        tag.className = 'rev__own';
-        tag.textContent = 'Ton avis, visible ici pour toi jusqu\'à sa publication';
-        el.append(tag);
-      }
       return el;
     };
-    const render = () => {
-      const list = (CFG.reviews || []).filter(r => r && r.text);
-      const mine = read();
-      wall.replaceChildren(...list.map(r => card(r)), ...(mine ? [card(mine, true)] : []));
-      $('#reviewsLead').textContent = list.length ? 'Ce que nos clients en pensent.' : 'Les premiers avis arrivent. Le tien peut être le premier.';
-    };
+    const list = (CFG.reviews || []).filter(r => r && r.text);
+    wall.replaceChildren(...list.map(card));
+    $('#reviewsLead').textContent = list.length ? 'Ce que nos clients en pensent.' : 'Les premiers avis arrivent. Le tien peut être le premier.';
+
     const payload = () => ({ name: name.value.trim(), text: text.value.trim(), stars: +form.elements.stars.value });
-    const sync = () => {
-      const r = payload();
-      send.href = waLink(`Mon avis sur WesSushi : ${'★'.repeat(r.stars)}\n${r.text}\n\n${r.name}`);
+    const busy = on => {
+      send.disabled = on;
+      $('span', send).textContent = on ? 'Envoi…' : 'Envoyer mon avis';
     };
-    form.addEventListener('input', () => { if (name.value.trim() && text.value.trim()) err.hidden = true; sync(); });
-    form.addEventListener('submit', e => e.preventDefault());
-    send.addEventListener('click', e => {
+    form.addEventListener('input', () => {
+      if (name.value.trim() && text.value.trim()) err.hidden = true;
+      fail.hidden = true;
+    });
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
       const r = payload();
+      okMsg.hidden = true;
       if (!r.name || !r.text) {
-        e.preventDefault();
         err.hidden = false;
         (r.name ? text : name).focus();
         return;
       }
-      write(r);
-      render();
+      if (!CFG.reviewsKey) {
+        fail.textContent = "L'envoi des avis n'est pas encore ouvert. Réessaie bientôt.";
+        fail.hidden = false;
+        return;
+      }
+      busy(true);
+      try {
+        const res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            access_key: CFG.reviewsKey,
+            subject: `Nouvel avis WesSushi : ${r.stars}/5 de ${r.name}`,
+            from_name: 'Site WesSushi',
+            Prénom: r.name,
+            Note: `${'★'.repeat(r.stars)}${'☆'.repeat(5 - r.stars)} (${r.stars}/5)`,
+            Avis: r.text,
+            'Pour le publier, colle cette ligne dans reviews (js/config.js)': `{ name: ${JSON.stringify(r.name)}, stars: ${r.stars}, text: ${JSON.stringify(r.text)} },`,
+            botcheck: form.elements.botcheck.checked,
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success) throw new Error(data.message || res.status);
+        form.reset();
+        okMsg.hidden = false;
+      } catch {
+        fail.textContent = "L'avis n'a pas pu partir. Vérifie ta connexion et réessaie.";
+        fail.hidden = false;
+      } finally {
+        busy(false);
+      }
     });
-    render();
-    sync();
   };
 
   const initMenu = () => {

@@ -39,6 +39,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .lead{font:500 clamp(19px,1.7vw,26px)/1.35 var(--display);max-width:26em;text-wrap:pretty}
 .hint{font-size:14px;line-height:1.4;color:var(--muted)}
 .err{font-size:14px;font-weight:700;color:var(--sun-deep)}
+.ok{padding:12px 16px;border-radius:14px;background:var(--mist);font:600 15px/1.35 var(--display);color:var(--navy)}
+.hint--center{text-align:center}
 
 .btn{--b:var(--navy);--f:var(--paper);display:inline-flex;align-items:center;justify-content:center;min-height:54px;padding:0 28px;border-radius:999px;background:var(--b);color:var(--f);font:600 clamp(16px,1.15vw,18px)/1 var(--display);text-decoration:none;text-align:center;transition:transform .35s var(--ease),background .2s;will-change:transform}
 .btn:hover{transform:scale(1.04)}
@@ -223,7 +225,6 @@ legend.label{margin-bottom:10px}
 .rev{background:var(--paper);padding:20px;border-radius:var(--r);display:grid;gap:10px}
 .rev__stars{color:var(--sun);letter-spacing:.14em;font-size:18px;line-height:1}
 .rev__name{font:600 16px/1.2 var(--display)}
-.rev__own{font:500 13px/1.2 var(--display);color:var(--muted)}
 .review-form{grid-area:form;display:grid;gap:18px;background:var(--paper);border-radius:var(--r);padding:clamp(18px,2.2vw,32px);box-shadow:0 24px 60px rgba(18,50,79,.08)}
 .stars{display:flex;flex-direction:row-reverse;justify-content:flex-end;gap:2px;position:relative;padding-top:28px}
 .stars legend{position:absolute;top:0;left:0}
